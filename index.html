@@ -1,0 +1,1669 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CEUA Project Console — Carbon/Ash/Pantanal</title>
+  <meta name="theme-color" content="#0b1020"/>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#101b3a;
+      --card2:#0f1733;
+      --line:rgba(255,255,255,.14);
+      --text:#f4f7ff;
+      --muted:rgba(244,247,255,.75);
+      --good:#3cff9e;
+      --warn:#ffd166;
+      --bad:#ff4d6d;
+      --info:#4dabff;
+      --accent:#b56dff;
+      --accent2:#ff7a59;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius:18px;
+      --btnRadius:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 900px at 12% -5%, rgba(181,109,255,.25), transparent 60%),
+        radial-gradient(900px 800px at 105% 15%, rgba(255,122,89,.20), transparent 55%),
+        radial-gradient(900px 900px at 40% 110%, rgba(77,171,255,.18), transparent 55%),
+        linear-gradient(180deg, #070a14, #0b1020 45%, #070a14);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit}
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .topbar{
+      display:flex; gap:14px; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:50;
+      padding:14px 18px;
+      background:rgba(8,10,20,.72);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .brand{
+      display:flex; gap:12px; align-items:center;
+      min-width: 240px;
+    }
+    .logo{
+      width:40px;height:40px;border-radius:14px;
+      background:
+        radial-gradient(circle at 25% 25%, rgba(60,255,158,.95), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(255,209,102,.95), transparent 55%),
+        radial-gradient(circle at 60% 20%, rgba(77,171,255,.95), transparent 55%),
+        linear-gradient(145deg, rgba(181,109,255,.75), rgba(255,122,89,.65));
+      box-shadow: var(--shadow);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .brand h1{
+      font-size:14px; margin:0; line-height:1.15;
+      letter-spacing:.2px;
+    }
+    .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+
+    .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(16,27,58,.60);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    .pill label{font-size:12px;color:var(--muted)}
+    select, input[type="text"], input[type="number"], input[type="date"], textarea{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:12px;
+      color:var(--text);
+      padding:10px 12px;
+      outline:none;
+      width:100%;
+    }
+    select{padding:10px 12px}
+    textarea{min-height:160px; resize:vertical; line-height:1.4}
+    .btn{
+      border:0; cursor:pointer;
+      padding:12px 14px;
+      border-radius:var(--btnRadius);
+      color:#0b1020;
+      font-weight:800;
+      letter-spacing:.2px;
+      box-shadow: var(--shadow);
+      transition: transform .08s ease, filter .08s ease;
+      user-select:none;
+      display:inline-flex; align-items:center; gap:10px;
+      justify-content:center;
+    }
+    .btn:active{transform: translateY(1px) scale(.99)}
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(60,255,158,1), rgba(77,171,255,1));
+    }
+    .btn.alt{
+      background:linear-gradient(135deg, rgba(255,209,102,1), rgba(255,122,89,1));
+    }
+    .btn.ghost{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:none;
+      font-weight:700;
+    }
+    .btn.danger{
+      background:linear-gradient(135deg, rgba(255,77,109,1), rgba(181,109,255,1));
+      color:#0b1020;
+    }
+
+    .tabs{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding:14px 18px;
+      border-bottom:1px solid var(--line);
+      background:rgba(12,16,32,.55);
+      backdrop-filter: blur(10px);
+      position:sticky; top:74px; z-index:45;
+    }
+    .tab{
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      font-weight:800;
+      cursor:pointer;
+      transition:.12s;
+      user-select:none;
+    }
+    .tab.active{
+      background:linear-gradient(135deg, rgba(181,109,255,.95), rgba(255,122,89,.90));
+      border-color: rgba(255,255,255,.20);
+      color:#0b1020;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+      padding:16px 0 40px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
+      .brand{min-width:auto}
+      .tabs{top:70px}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(16,27,58,.78), rgba(15,23,51,.72));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      padding:16px;
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0 0 8px;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .card p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+    @media (max-width: 700px){ .kpis{grid-template-columns:1fr} }
+    .kpi{
+      padding:14px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05);
+    }
+    .kpi .label{font-size:12px;color:var(--muted)}
+    .kpi .value{font-size:20px;font-weight:900;margin-top:4px}
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      font-size:12px;
+      font-weight:800;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--info)}
+    .dot.good{background:var(--good)}
+    .dot.warn{background:var(--warn)}
+    .dot.bad{background:var(--bad)}
+
+    .row{display:grid;grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width: 700px){ .row{grid-template-columns:1fr} }
+
+    .small{font-size:12px;color:var(--muted)}
+    .hr{height:1px;background:var(--line);margin:14px 0}
+
+    .list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .item{
+      padding:12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05);
+    }
+    .itemTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .itemTitle{font-weight:900}
+    .itemMeta{font-size:12px;color:var(--muted)}
+    .itemActions{display:flex;gap:8px;flex-wrap:wrap}
+    .chk{display:flex; gap:10px; align-items:flex-start}
+    .chk input{margin-top:3px; transform:scale(1.2)}
+    .twoCols{display:grid;grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width: 900px){ .twoCols{grid-template-columns:1fr} }
+
+    .toast{
+      position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+      background:rgba(16,27,58,.92);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
+      padding:12px 14px;
+      border-radius:999px;
+      box-shadow: var(--shadow);
+      opacity:0; pointer-events:none;
+      transition:.2s;
+      font-weight:800; font-size:12px;
+      z-index:1000;
+    }
+    .toast.show{opacity:1}
+    .footerNote{padding:10px 0 0;color:rgba(244,247,255,.6);font-size:12px}
+    .mono{font-family:var(--mono)}
+    .codebox{
+      font-family:var(--mono);
+      font-size:12px;
+      color:rgba(244,247,255,.9);
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      padding:12px;
+      overflow:auto;
+      white-space:pre;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1 id="appTitle">CEUA Project Console</h1>
+        <p id="appSubtitle">Ash • Carbon • Biodiversity — Pantanal</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="pill">
+        <label id="langLbl" for="langSel">Idioma</label>
+        <select id="langSel">
+          <option value="pt">PT</option>
+          <option value="en">EN</option>
+        </select>
+      </div>
+
+      <button class="btn ghost" id="btnExport">⬇️ <span id="tExport">Exportar JSON</span></button>
+      <button class="btn ghost" id="btnImport">⬆️ <span id="tImport">Importar JSON</span></button>
+      <button class="btn danger" id="btnReset">🧨 <span id="tReset">Reset</span></button>
+      <input type="file" id="fileInput" accept="application/json" style="display:none"/>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="wrap">
+    <div id="view"></div>
+    <div class="footerNote" id="footerNote"></div>
+  </div>
+
+  <div class="toast" id="toast">Saved</div>
+
+<script>
+/* =========================
+   i18n
+========================= */
+const I18N = {
+  pt: {
+    appTitle:"CEUA Project Console",
+    appSubtitle:"Cinzas • Carbono • Biodiversidade — Pantanal",
+    footer:"Dica: tudo salva automaticamente no aparelho (localStorage). Exporte JSON para backup/compartilhar.",
+    tabs:{
+      dash:"📊 Painel",
+      meth:"🧠 Metodologia (editar)",
+      steps:"✅ Passo a passo",
+      data:"🧪 Dados",
+      analysis:"📈 Análises",
+      cfg:"⚙️ Config"
+    },
+    export:"Exportar JSON",
+    import:"Importar JSON",
+    reset:"Reset",
+    toastSaved:"Salvo!",
+    toastImported:"Importado!",
+    toastExported:"Arquivo baixado!",
+    toastReset:"Reset completo.",
+    confirmReset:"Tem certeza? Isso apaga dados locais deste navegador.",
+    dash:{
+      title:"Visão geral do projeto",
+      about:"Você consegue ver progresso, editar metodologia e registrar tudo em um fluxo reprodutível (padrão pesquisa).",
+      kpi1:"Progresso geral",
+      kpi2:"Dias planejados",
+      kpi3:"Registros de dados",
+      status:"Status",
+      today:"Dia atual",
+      start:"Início",
+      end:"Fim",
+      treatments:"Tratamentos",
+      mesocosms:"Mesocosmos",
+      fish:"Peixes (por mesocosmo)",
+      alerts:"Alertas rápidos",
+      noAlerts:"Sem alertas configurados."
+    },
+    meth:{
+      title:"Metodologia editável (versão viva)",
+      hint:"Edite aqui. Use como texto oficial e também como guia operacional.",
+      sections:"Seções rápidas",
+      saveNow:"Salvar agora",
+      fieldProject:"Projeto",
+      fieldQuestion:"Pergunta científica",
+      fieldGoal:"Objetivo geral",
+      fieldHyp:"Hipóteses",
+      fieldMethod:"Metodologia (texto)",
+      placeholders:{
+        project:"Ex: Cinzas, Carbono e Biodiversidade…",
+        question:"Ex: Como diferentes concentrações de cinzas afetam…",
+        goal:"Ex: Avaliar efeitos das cinzas na água e nos peixes…",
+        hyp:"Liste hipóteses gerais e específicas…",
+        method:"Cole/edite a metodologia aqui (pode ser detalhada)."
+      }
+    },
+    steps:{
+      title:"Passo a passo (checklist + datas + notas)",
+      add:"Adicionar etapa",
+      newTitle:"Título da etapa",
+      newOwner:"Responsável",
+      newDue:"Prazo",
+      newNotes:"Notas",
+      progress:"Progresso por módulo"
+    },
+    data:{
+      title:"Dados (templates + inserção manual)",
+      hint:"Crie registros mínimos para garantir rastreabilidade. Depois exporta JSON e analisa no R.",
+      water:"Água (físico-química/nutrientes)",
+      behavior:"Comportamento dos peixes",
+      hist:"Histologia",
+      addRow:"Adicionar registro",
+      fields:{
+        date:"Data",
+        meso:"Mesocosmo",
+        trt:"Tratamento (g/L)",
+        od:"OD (mg/L)",
+        ph:"pH",
+        ec:"Condut. (µS/cm)",
+        temp:"Temp (°C)",
+        turb:"Turbidez (NTU)",
+        nt:"N total",
+        pt:"P total",
+        notes:"Notas"
+      },
+      behFields:{
+        species:"Espécie",
+        ventilation:"Ventilação",
+        swimming:"Natação",
+        reactivity:"Reatividade",
+        stress:"Estresse",
+        notes:"Notas"
+      },
+      histFields:{
+        organ:"Órgão",
+        finding:"Achado",
+        grade:"Grau",
+        notes:"Notas"
+      }
+    },
+    analysis:{
+      title:"Análises (roteiro + código-base)",
+      hint:"Aqui é um guia operacional. Você exporta o JSON e roda no R (LMM/GLMM etc.).",
+      what:"O que analisar (mínimo publicável)",
+      code:"Código base (R) — modelos mistos",
+      note:"Observação: este app não roda R; ele organiza e exporta dados limpos."
+    },
+    cfg:{
+      title:"Config do experimento (editável)",
+      hint:"Ajuste o desenho do experimento. Isso alimenta o painel e templates.",
+      saveNow:"Salvar",
+      fields:{
+        projectId:"ID do Projeto",
+        start:"Data início",
+        end:"Data fim",
+        days:"Duração (dias)",
+        mesocosms:"Nº mesocosmos",
+        volume:"Volume por mesocosmo (L)",
+        treatments:"Tratamentos (g/L) separados por vírgula",
+        replicates:"Réplicas por tratamento",
+        fishA:"Hoplosternum (n)",
+        fishB:"Astyanax (n)"
+      }
+    }
+  },
+
+  en: {
+    appTitle:"CEUA Project Console",
+    appSubtitle:"Ash • Carbon • Biodiversity — Pantanal",
+    footer:"Tip: everything auto-saves locally (localStorage). Export JSON for backup/sharing.",
+    tabs:{
+      dash:"📊 Dashboard",
+      meth:"🧠 Methodology (edit)",
+      steps:"✅ Step-by-step",
+      data:"🧪 Data",
+      analysis:"📈 Analyses",
+      cfg:"⚙️ Config"
+    },
+    export:"Export JSON",
+    import:"Import JSON",
+    reset:"Reset",
+    toastSaved:"Saved!",
+    toastImported:"Imported!",
+    toastExported:"Downloaded!",
+    toastReset:"Full reset.",
+    confirmReset:"Are you sure? This deletes local data in this browser.",
+    dash:{
+      title:"Project overview",
+      about:"See progress, edit methodology, and log everything in a reproducible workflow.",
+      kpi1:"Overall progress",
+      kpi2:"Planned days",
+      kpi3:"Data records",
+      status:"Status",
+      today:"Current day",
+      start:"Start",
+      end:"End",
+      treatments:"Treatments",
+      mesocosms:"Mesocosms",
+      fish:"Fish (per mesocosm)",
+      alerts:"Quick alerts",
+      noAlerts:"No alerts configured."
+    },
+    meth:{
+      title:"Editable methodology (living version)",
+      hint:"Edit here. Use as official text and as an operational guide.",
+      sections:"Quick sections",
+      saveNow:"Save now",
+      fieldProject:"Project",
+      fieldQuestion:"Scientific question",
+      fieldGoal:"Overall goal",
+      fieldHyp:"Hypotheses",
+      fieldMethod:"Methodology (text)",
+      placeholders:{
+        project:"e.g., Ash, Carbon and Biodiversity…",
+        question:"e.g., How do different ash concentrations affect…",
+        goal:"e.g., Evaluate ash effects on water and fish…",
+        hyp:"List general and specific hypotheses…",
+        method:"Paste/edit the methodology here (can be detailed)."
+      }
+    },
+    steps:{
+      title:"Step-by-step (checklist + dates + notes)",
+      add:"Add step",
+      newTitle:"Step title",
+      newOwner:"Owner",
+      newDue:"Due date",
+      newNotes:"Notes",
+      progress:"Progress by module"
+    },
+    data:{
+      title:"Data (templates + manual entry)",
+      hint:"Create minimal records for traceability. Then export JSON and analyze in R.",
+      water:"Water (phys-chem / nutrients)",
+      behavior:"Fish behavior",
+      hist:"Histology",
+      addRow:"Add record",
+      fields:{
+        date:"Date",
+        meso:"Mesocosm",
+        trt:"Treatment (g/L)",
+        od:"DO (mg/L)",
+        ph:"pH",
+        ec:"Cond. (µS/cm)",
+        temp:"Temp (°C)",
+        turb:"Turbidity (NTU)",
+        nt:"Total N",
+        pt:"Total P",
+        notes:"Notes"
+      },
+      behFields:{
+        species:"Species",
+        ventilation:"Ventilation",
+        swimming:"Swimming",
+        reactivity:"Reactivity",
+        stress:"Stress",
+        notes:"Notes"
+      },
+      histFields:{
+        organ:"Organ",
+        finding:"Finding",
+        grade:"Grade",
+        notes:"Notes"
+      }
+    },
+    analysis:{
+      title:"Analyses (roadmap + base code)",
+      hint:"This is an operational guide. Export JSON and run in R (LMM/GLMM etc.).",
+      what:"What to analyze (minimum publishable set)",
+      code:"Base code (R) — mixed models",
+      note:"Note: this app does not run R; it organizes and exports clean data."
+    },
+    cfg:{
+      title:"Experiment config (editable)",
+      hint:"Adjust the experimental design. It feeds the dashboard and templates.",
+      saveNow:"Save",
+      fields:{
+        projectId:"Project ID",
+        start:"Start date",
+        end:"End date",
+        days:"Duration (days)",
+        mesocosms:"N mesocosms",
+        volume:"Volume per mesocosm (L)",
+        treatments:"Treatments (g/L) comma-separated",
+        replicates:"Replicates per treatment",
+        fishA:"Hoplosternum (n)",
+        fishB:"Astyanax (n)"
+      }
+    }
+  }
+};
+
+/* =========================
+   State (auto-save)
+========================= */
+const LS_KEY = "ceua_project_console_v1";
+
+const defaultState = {
+  meta:{
+    projectId:"CEUA-PANTANAL-ASH-CARBON",
+    startDate:"",
+    endDate:"",
+    plannedDays:30,
+    status:"running",
+  },
+  design:{
+    mesocosms:9,
+    volumeL:1000,
+    treatments:[0,2,5],
+    replicates:3,
+    fishA:15, // Hoplosternum
+    fishB:30  // Astyanax
+  },
+  text:{
+    project:"Cinzas, Carbono e Biodiversidade: Efeitos das Queimadas no Funcionamento dos Ecossistemas Aquáticos do Pantanal.",
+    question:"De que forma diferentes concentrações de cinzas de queimadas afetam a qualidade da água e as respostas fisiológicas de duas espécies de peixes do Pantanal?",
+    goal:"Avaliar os efeitos de diferentes concentrações de cinzas provenientes de queimadas sobre a qualidade da água e sobre as respostas comportamentais, fisiológicas e histológicas de duas espécies de peixes do Pantanal.",
+    hypotheses:"Geral: A deposição de cinzas altera a qualidade da água e provoca respostas em peixes.\nEspecíficas: (1) mudanças físico-químicas dependentes da concentração; (2) respostas comportamentais/fisiológicas com dose e tempo; (3) alterações histológicas em órgãos-alvo.",
+    methodology:"Experimento em mesocosmos (1000 L) no LIPAN/UNEMAT, com 3 tratamentos (0, 2, 5 g/L) e 3 réplicas cada. Estabilização do sistema, aclimatação dos peixes, aplicação das cinzas e coletas em momentos definidos; monitoramento diário de variáveis físico-químicas e registros biológicos (comportamento, histologia)."
+  },
+  steps:[
+    {id:cryptoId(), module:"Planejamento", title:"Definir cronograma, equipe e checklist de materiais", done:false, due:"", owner:"", notes:""},
+    {id:cryptoId(), module:"Montagem", title:"Coleta de água e sedimento colonizados; enchimento e estabilização (48h)", done:false, due:"", owner:"", notes:""},
+    {id:cryptoId(), module:"Execução", title:"Aclimatação dos peixes (7 dias) e aplicação dos tratamentos (cinzas)", done:false, due:"", owner:"", notes:""},
+    {id:cryptoId(), module:"Monitoramento", title:"Medições diárias (OD, pH, CE, Temp, Turb) + nutrientes nos dias de coleta", done:false, due:"", owner:"", notes:""},
+    {id:cryptoId(), module:"Biologia", title:"Registro comportamental diário + amostras para histologia (dias 0/8/10/20/30)", done:false, due:"", owner:"", notes:""},
+    {id:cryptoId(), module:"Análises", title:"Modelos lineares mistos (tratamento*tempo; mesocosmo aleatório) + gráficos", done:false, due:"", owner:"", notes:""}
+  ],
+  data:{
+    water:[],
+    behavior:[],
+    histology:[]
+  },
+  alerts:[]
+};
+
+function cryptoId(){
+  return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return structuredClone(defaultState);
+    const parsed = JSON.parse(raw);
+    // merge lightly to keep new fields
+    return deepMerge(structuredClone(defaultState), parsed);
+  }catch(e){
+    return structuredClone(defaultState);
+  }
+}
+
+function saveState(){
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  toast(t("toastSaved"));
+}
+
+function deepMerge(base, incoming){
+  if(typeof base !== "object" || base === null) return incoming;
+  const out = Array.isArray(base) ? base.slice() : {...base};
+  if(typeof incoming !== "object" || incoming === null) return out;
+  for(const k of Object.keys(incoming)){
+    if(k in out){
+      if(typeof out[k] === "object" && out[k] !== null && !Array.isArray(out[k])){
+        out[k] = deepMerge(out[k], incoming[k]);
+      }else{
+        out[k] = incoming[k];
+      }
+    }else{
+      out[k] = incoming[k];
+    }
+  }
+  return out;
+}
+
+/* =========================
+   UI helpers
+========================= */
+let lang = "pt";
+let state = loadState();
+let currentTab = "dash";
+
+function t(path){
+  const parts = path.split(".");
+  let obj = I18N[lang];
+  for(const p of parts) obj = obj?.[p];
+  return obj ?? path;
+}
+
+function setLang(newLang){
+  lang = newLang;
+  document.documentElement.lang = (lang==="pt" ? "pt-BR" : "en");
+  renderAll();
+}
+
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>el.classList.remove("show"), 1400);
+}
+
+function pct(n){ return Math.max(0, Math.min(100, Math.round(n))); }
+
+function calcProgress(){
+  const total = state.steps.length || 1;
+  const done = state.steps.filter(s=>s.done).length;
+  return pct((done/total)*100);
+}
+
+function daysPlanned(){
+  const d = Number(state.meta.plannedDays || 0);
+  return isFinite(d) && d>0 ? d : 30;
+}
+
+function recordsCount(){
+  return (state.data.water.length + state.data.behavior.length + state.data.histology.length);
+}
+
+function dayNow(){
+  // If start date exists: compute day index; else fallback to "—"
+  if(!state.meta.startDate) return "—";
+  const start = new Date(state.meta.startDate+"T00:00:00");
+  const now = new Date();
+  const diff = Math.floor((now - start) / (1000*60*60*24)) + 1;
+  if(!isFinite(diff)) return "—";
+  return Math.max(1, diff);
+}
+
+/* =========================
+   Tabs
+========================= */
+function renderTabs(){
+  const tabs = [
+    ["dash", t("tabs.dash")],
+    ["meth", t("tabs.meth")],
+    ["steps", t("tabs.steps")],
+    ["data", t("tabs.data")],
+    ["analysis", t("tabs.analysis")],
+    ["cfg", t("tabs.cfg")]
+  ];
+  const el = document.getElementById("tabs");
+  el.innerHTML = tabs.map(([id,label]) => `
+    <div class="tab ${currentTab===id?"active":""}" data-tab="${id}">${label}</div>
+  `).join("");
+  el.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      currentTab = btn.dataset.tab;
+      renderAll();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  });
+}
+
+/* =========================
+   Views
+========================= */
+function viewDashboard(){
+  const progress = calcProgress();
+  const planned = daysPlanned();
+  const recs = recordsCount();
+
+  const treatments = state.design.treatments.join(", ");
+  const fishPerMeso = `${state.design.fishA} + ${state.design.fishB}`;
+
+  return `
+    <div class="grid">
+      <div class="card">
+        <h2>${t("dash.title")}</h2>
+        <p>${t("dash.about")}</p>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">${t("dash.kpi1")}</div>
+            <div class="value">${progress}%</div>
+            <div class="small">${state.steps.filter(s=>s.done).length}/${state.steps.length} ${lang==="pt"?"etapas":"steps"}</div>
+          </div>
+          <div class="kpi">
+            <div class="label">${t("dash.kpi2")}</div>
+            <div class="value">${planned}</div>
+            <div class="small">${t("dash.today")}: <span class="mono">${dayNow()}</span></div>
+          </div>
+          <div class="kpi">
+            <div class="label">${t("dash.kpi3")}</div>
+            <div class="value">${recs}</div>
+            <div class="small">${lang==="pt"?"água + comportamento + histologia":"water + behavior + histology"}</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="twoCols">
+          <div class="item">
+            <div class="itemTop">
+              <div>
+                <div class="itemTitle">${t("dash.status")}: <span class="badge"><span class="dot ${progress>=70?"good":progress>=35?"warn":"bad"}"></span>${state.meta.status}</span></div>
+                <div class="itemMeta">${t("dash.start")}: <span class="mono">${state.meta.startDate||"—"}</span> • ${t("dash.end")}: <span class="mono">${state.meta.endDate||"—"}</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="itemTop">
+              <div>
+                <div class="itemTitle">${lang==="pt"?"Desenho experimental":"Experimental design"}</div>
+                <div class="itemMeta">${t("dash.mesocosms")}: <span class="mono">${state.design.mesocosms}</span> • ${lang==="pt"?"Volume":"Volume"}: <span class="mono">${state.design.volumeL} L</span></div>
+                <div class="itemMeta">${t("dash.treatments")}: <span class="mono">${treatments} g/L</span></div>
+                <div class="itemMeta">${t("dash.fish")}: <span class="mono">${fishPerMeso}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="item">
+          <div class="itemTop">
+            <div>
+              <div class="itemTitle">${t("dash.alerts")}</div>
+              <div class="itemMeta">${state.alerts.length? state.alerts.map(a=>"• "+escapeHtml(a)).join("<br>") : t("dash.noAlerts")}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card">
+        <h2>${lang==="pt"?"Atalhos rápidos":"Quick actions"}</h2>
+        <p>${lang==="pt"?"Use isso no campo/lab: clique, registre, salve e exporte.":"Use this in field/lab: click, log, save and export."}</p>
+
+        <div class="hr"></div>
+
+        <button class="btn primary" onclick="jump('steps')">✅ ${lang==="pt"?"Abrir passo a passo":"Open step-by-step"}</button>
+        <div style="height:10px"></div>
+        <button class="btn alt" onclick="jump('data')">🧪 ${lang==="pt"?"Adicionar dados agora":"Add data now"}</button>
+        <div style="height:10px"></div>
+        <button class="btn ghost" onclick="jump('meth')">🧠 ${lang==="pt"?"Editar metodologia":"Edit methodology"}</button>
+
+        <div class="hr"></div>
+
+        <div class="badge"><span class="dot good"></span>${lang==="pt"?"Auto-salvamento ativo":"Auto-save ON"}</div>
+        <div class="small" style="margin-top:10px">
+          ${lang==="pt"
+            ? "Publicação no GitHub Pages: Settings → Pages → Deploy from branch."
+            : "GitHub Pages publish: Settings → Pages → Deploy from branch."}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function viewMethodology(){
+  return `
+    <div class="grid">
+      <div class="card">
+        <h2>${t("meth.title")}</h2>
+        <p>${t("meth.hint")}</p>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <div class="small">${t("meth.fieldProject")}</div>
+            <input id="txtProject" type="text" value="${escapeAttr(state.text.project)}" placeholder="${escapeAttr(t("meth.placeholders.project"))}"/>
+          </div>
+          <div>
+            <div class="small">${t("meth.fieldQuestion")}</div>
+            <input id="txtQuestion" type="text" value="${escapeAttr(state.text.question)}" placeholder="${escapeAttr(t("meth.placeholders.question"))}"/>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <div>
+            <div class="small">${t("meth.fieldGoal")}</div>
+            <textarea id="txtGoal" placeholder="${escapeAttr(t("meth.placeholders.goal"))}">${escapeHtml(state.text.goal)}</textarea>
+          </div>
+          <div>
+            <div class="small">${t("meth.fieldHyp")}</div>
+            <textarea id="txtHyp" placeholder="${escapeAttr(t("meth.placeholders.hyp"))}">${escapeHtml(state.text.hypotheses)}</textarea>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div>
+          <div class="small">${t("meth.fieldMethod")}</div>
+          <textarea id="txtMethod" placeholder="${escapeAttr(t("meth.placeholders.method"))}">${escapeHtml(state.text.methodology)}</textarea>
+        </div>
+
+        <div class="hr"></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn primary" id="btnSaveMeth">💾 ${t("meth.saveNow")}</button>
+          <button class="btn ghost" onclick="copyMethod()">📋 ${lang==="pt"?"Copiar metodologia":"Copy methodology"}</button>
+        </div>
+
+        <div class="small" style="margin-top:10px">
+          ${lang==="pt"
+            ? "Dica: mantenha aqui a versão oficial (texto) e a versão operacional (passo a passo) alinhadas."
+            : "Tip: keep the official text and the operational step-by-step aligned."}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>${lang==="pt"?"Resumo rápido (gerado)":"Quick summary (generated)"}</h2>
+        <p>${lang==="pt"?"Para você ler em 20 segundos antes de começar o dia.":"Read in 20 seconds before starting your day."}</p>
+        <div class="hr"></div>
+
+        <div class="item">
+          <div class="itemTitle">${lang==="pt"?"Tratamentos":"Treatments"}</div>
+          <div class="itemMeta mono">${state.design.treatments.join(", ")} g/L • ${state.design.replicates} ${lang==="pt"?"réplicas":"replicates"}</div>
+        </div>
+
+        <div class="item">
+          <div class="itemTitle">${lang==="pt"?"Amostragens":"Sampling"}</div>
+          <div class="itemMeta">
+            ${lang==="pt"
+              ? "Peixes em 5 momentos: introdução, adição de cinzas, +10, +20, +30 dias."
+              : "Fish at 5 timepoints: introduction, ash addition, +10, +20, +30 days."}
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itemTitle">${lang==="pt"?"Variáveis mínimas":"Minimum variables"}</div>
+          <div class="itemMeta">
+            ${lang==="pt"
+              ? "OD, pH, CE, Temp, Turb + N/P; comportamento diário; histologia (brânquia, fígado, intestino…)."
+              : "DO, pH, EC, Temp, Turb + N/P; daily behavior; histology (gills, liver, gut…)."}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function viewSteps(){
+  const modules = ["Planejamento","Montagem","Execução","Monitoramento","Biologia","Análises"];
+  const moduleProgress = modules.map(m=>{
+    const items = state.steps.filter(s=>s.module===m);
+    const done = items.filter(s=>s.done).length;
+    const pctM = items.length ? pct((done/items.length)*100) : 0;
+    return {m, done, total:items.length, pctM};
+  });
+
+  const moduleCards = moduleProgress.map(x=>`
+    <div class="kpi">
+      <div class="label">${x.m}</div>
+      <div class="value">${x.pctM}%</div>
+      <div class="small">${x.done}/${x.total}</div>
+    </div>
+  `).join("");
+
+  const list = state.steps.map(s=>`
+    <div class="item">
+      <div class="itemTop">
+        <div>
+          <div class="itemTitle">${escapeHtml(s.module)} — ${escapeHtml(s.title)}</div>
+          <div class="itemMeta">
+            ${lang==="pt"?"Prazo":"Due"}: <span class="mono">${s.due||"—"}</span> •
+            ${lang==="pt"?"Responsável":"Owner"}: <span class="mono">${escapeHtml(s.owner||"—")}</span>
+          </div>
+        </div>
+        <div class="itemActions">
+          <button class="btn ghost" onclick="toggleStep('${s.id}')">${s.done ? "↩️ "+(lang==="pt"?"Desmarcar":"Undo") : "✅ "+(lang==="pt"?"Concluir":"Done")}</button>
+          <button class="btn ghost" onclick="editStep('${s.id}')">✏️ ${lang==="pt"?"Editar":"Edit"}</button>
+          <button class="btn ghost" onclick="delStep('${s.id}')">🗑️ ${lang==="pt"?"Excluir":"Delete"}</button>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="small">${lang==="pt"?"Notas":"Notes"}</div>
+      <textarea oninput="updateStepNotes('${s.id}', this.value)">${escapeHtml(s.notes||"")}</textarea>
+    </div>
+  `).join("");
+
+  return `
+    <div class="grid">
+      <div class="card">
+        <h2>${t("steps.title")}</h2>
+        <p>${lang==="pt"?"Checklist operacional — isso é o que garante reprodutibilidade e evita ‘esquecer no campo’.":"Operational checklist — this ensures reproducibility and prevents forgetting things in the field."}</p>
+
+        <div class="hr"></div>
+        <h2 style="margin-bottom:10px">${t("steps.progress")}</h2>
+        <div class="kpis">${moduleCards}</div>
+
+        <div class="hr"></div>
+        <div class="twoCols">
+          <div class="item">
+            <div class="small">${t("steps.newTitle")}</div>
+            <input id="newStepTitle" type="text" placeholder="${escapeAttr(lang==="pt"?"Ex: Calibrar sonda multiparâmetros":"e.g., Calibrate multiparameter probe")}"/>
+          </div>
+          <div class="item">
+            <div class="small">${lang==="pt"?"Módulo":"Module"}</div>
+            <select id="newStepModule">
+              ${modules.map(m=>`<option value="${m}">${m}</option>`).join("")}
+            </select>
+          </div>
+          <div class="item">
+            <div class="small">${t("steps.newOwner")}</div>
+            <input id="newStepOwner" type="text" placeholder="${escapeAttr(lang==="pt"?"Nome":"Name")}"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("steps.newDue")}</div>
+            <input id="newStepDue" type="date"/>
+          </div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="item">
+          <div class="small">${t("steps.newNotes")}</div>
+          <textarea id="newStepNotes" placeholder="${escapeAttr(lang==="pt"?"Ex: Checar baterias, levar cabo extra…":"e.g., Check batteries, bring spare cable…")}"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn primary" onclick="addStep()">➕ ${t("steps.add")}</button>
+          <button class="btn ghost" onclick="saveState()">💾 ${lang==="pt"?"Salvar":"Save"}</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>${lang==="pt"?"Lista de etapas":"Steps list"}</h2>
+        <p>${lang==="pt"?"Marque como concluído e o painel atualiza automaticamente.":"Mark done and the dashboard updates automatically."}</p>
+        <div class="hr"></div>
+        <div class="list">${list || `<div class="small">${lang==="pt"?"Sem etapas ainda.":"No steps yet."}</div>`}</div>
+      </div>
+    </div>
+  `;
+}
+
+function viewData(){
+  const trts = state.design.treatments;
+  const mesoCount = state.design.mesocosms;
+
+  const mesoOptions = Array.from({length:mesoCount}, (_,i)=>i+1).map(n=>`<option value="${n}">${n}</option>`).join("");
+
+  const trtOptions = trts.map(v=>`<option value="${v}">${v}</option>`).join("");
+
+  const waterRows = state.data.water.map((r,idx)=>`
+    <div class="item">
+      <div class="itemTop">
+        <div>
+          <div class="itemTitle">${r.date||"—"} • M${r.mesocosm} • ${r.treatment} g/L</div>
+          <div class="itemMeta mono">OD:${nz(r.od)} pH:${nz(r.ph)} EC:${nz(r.ec)} Temp:${nz(r.temp)} Turb:${nz(r.turb)} NT:${nz(r.nt)} PT:${nz(r.pt)}</div>
+        </div>
+        <div class="itemActions">
+          <button class="btn ghost" onclick="delData('water', ${idx})">🗑️</button>
+        </div>
+      </div>
+      <div class="small">${lang==="pt"?"Notas":"Notes"}: ${escapeHtml(r.notes||"—")}</div>
+    </div>
+  `).join("");
+
+  const behRows = state.data.behavior.map((r,idx)=>`
+    <div class="item">
+      <div class="itemTop">
+        <div>
+          <div class="itemTitle">${r.date||"—"} • M${r.mesocosm} • ${r.treatment} g/L • ${escapeHtml(r.species||"—")}</div>
+          <div class="itemMeta">${lang==="pt"?"Ventilação":"Ventilation"}: <span class="mono">${escapeHtml(r.ventilation||"—")}</span> • ${lang==="pt"?"Natação":"Swimming"}: <span class="mono">${escapeHtml(r.swimming||"—")}</span> • ${lang==="pt"?"Estresse":"Stress"}: <span class="mono">${escapeHtml(r.stress||"—")}</span></div>
+        </div>
+        <div class="itemActions">
+          <button class="btn ghost" onclick="delData('behavior', ${idx})">🗑️</button>
+        </div>
+      </div>
+      <div class="small">${lang==="pt"?"Notas":"Notes"}: ${escapeHtml(r.notes||"—")}</div>
+    </div>
+  `).join("");
+
+  const histRows = state.data.histology.map((r,idx)=>`
+    <div class="item">
+      <div class="itemTop">
+        <div>
+          <div class="itemTitle">${r.date||"—"} • M${r.mesocosm} • ${r.treatment} g/L • ${escapeHtml(r.organ||"—")}</div>
+          <div class="itemMeta">${lang==="pt"?"Achado":"Finding"}: <span class="mono">${escapeHtml(r.finding||"—")}</span> • ${lang==="pt"?"Grau":"Grade"}: <span class="mono">${escapeHtml(r.grade||"—")}</span></div>
+        </div>
+        <div class="itemActions">
+          <button class="btn ghost" onclick="delData('histology', ${idx})">🗑️</button>
+        </div>
+      </div>
+      <div class="small">${lang==="pt"?"Notas":"Notes"}: ${escapeHtml(r.notes||"—")}</div>
+    </div>
+  `).join("");
+
+  return `
+    <div class="grid">
+      <div class="card">
+        <h2>${t("data.title")}</h2>
+        <p>${t("data.hint")}</p>
+
+        <div class="hr"></div>
+
+        <h2>${t("data.water")}</h2>
+        <div class="twoCols">
+          <div class="item">
+            <div class="small">${t("data.fields.date")}</div>
+            <input id="w_date" type="date"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.meso")}</div>
+            <select id="w_meso">${mesoOptions}</select>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.trt")}</div>
+            <select id="w_trt">${trtOptions}</select>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.od")}</div>
+            <input id="w_od" type="number" step="0.01"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.ph")}</div>
+            <input id="w_ph" type="number" step="0.01"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.ec")}</div>
+            <input id="w_ec" type="number" step="0.1"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.temp")}</div>
+            <input id="w_temp" type="number" step="0.1"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.turb")}</div>
+            <input id="w_turb" type="number" step="0.1"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.nt")}</div>
+            <input id="w_nt" type="number" step="0.001"/>
+          </div>
+          <div class="item">
+            <div class="small">${t("data.fields.pt")}</div>
+            <input id="w_pt" type="number" step="0.001"/>
+          </div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="item">
+          <div class="small">${t("data.fields.notes")}</div>
+          <textarea id="w_notes"></textarea>
+        </div>
+        <button class="btn alt" onclick="addWater()">➕ ${t("data.addRow")}</button>
+
+        <div class="hr"></div>
+
+        <h2>${t("data.behavior")}</h2>
+        <div class="twoCols">
+          <div class="item"><div class="small">${t("data.fields.date")}</div><input id="b_date" type="date"/></div>
+          <div class="item"><div class="small">${t("data.fields.meso")}</div><select id="b_meso">${mesoOptions}</select></div>
+          <div class="item"><div class="small">${t("data.fields.trt")}</div><select id="b_trt">${trtOptions}</select></div>
+          <div class="item"><div class="small">${t("data.behFields.species")}</div>
+            <select id="b_species">
+              <option>Hoplosternum littorale</option>
+              <option>Astyanax bimaculatus</option>
+            </select>
+          </div>
+          <div class="item"><div class="small">${t("data.behFields.ventilation")}</div><input id="b_vent" type="text"/></div>
+          <div class="item"><div class="small">${t("data.behFields.swimming")}</div><input id="b_swim" type="text"/></div>
+          <div class="item"><div class="small">${t("data.behFields.reactivity")}</div><input id="b_react" type="text"/></div>
+          <div class="item"><div class="small">${t("data.behFields.stress")}</div><input id="b_stress" type="text"/></div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="item"><div class="small">${t("data.behFields.notes")}</div><textarea id="b_notes"></textarea></div>
+        <button class="btn alt" onclick="addBehavior()">➕ ${t("data.addRow")}</button>
+
+        <div class="hr"></div>
+
+        <h2>${t("data.hist")}</h2>
+        <div class="twoCols">
+          <div class="item"><div class="small">${t("data.fields.date")}</div><input id="h_date" type="date"/></div>
+          <div class="item"><div class="small">${t("data.fields.meso")}</div><select id="h_meso">${mesoOptions}</select></div>
+          <div class="item"><div class="small">${t("data.fields.trt")}</div><select id="h_trt">${trtOptions}</select></div>
+          <div class="item"><div class="small">${t("data.histFields.organ")}</div><input id="h_organ" type="text" placeholder="${escapeAttr(lang==="pt"?"Ex: brânquia":"e.g., gills")}"/></div>
+          <div class="item"><div class="small">${t("data.histFields.finding")}</div><input id="h_find" type="text"/></div>
+          <div class="item"><div class="small">${t("data.histFields.grade")}</div><input id="h_grade" type="text" placeholder="${escapeAttr(lang==="pt"?"Ex: + / ++ / +++":"e.g., + / ++ / +++")}"/></div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="item"><div class="small">${t("data.histFields.notes")}</div><textarea id="h_notes"></textarea></div>
+        <button class="btn alt" onclick="addHist()">➕ ${t("data.addRow")}</button>
+      </div>
+
+      <div class="card">
+        <h2>${lang==="pt"?"Registros salvos":"Saved records"}</h2>
+        <p class="small">${lang==="pt"?"Tudo que aparece aqui vai no JSON exportado.":"Everything here goes into the exported JSON."}</p>
+
+        <div class="hr"></div>
+        <div class="badge"><span class="dot good"></span>${lang==="pt"?"Água":"Water"}: <span class="mono">${state.data.water.length}</span></div>
+        <div style="height:8px"></div>
+        <div class="badge"><span class="dot warn"></span>${lang==="pt"?"Comportamento":"Behavior"}: <span class="mono">${state.data.behavior.length}</span></div>
+        <div style="height:8px"></div>
+        <div class="badge"><span class="dot info"></span>${lang==="pt"?"Histologia":"Histology"}: <span class="mono">${state.data.histology.length}</span></div>
+
+        <div class="hr"></div>
+
+        <h2>${lang==="pt"?"Água":"Water"}</h2>
+        <div class="list">${waterRows || `<div class="small">${lang==="pt"?"Nenhum registro ainda.":"No records yet."}</div>`}</div>
+
+        <div class="hr"></div>
+
+        <h2>${lang==="pt"?"Comportamento":"Behavior"}</h2>
+        <div class="list">${behRows || `<div class="small">${lang==="pt"?"Nenhum registro ainda.":"No records yet."}</div>`}</div>
+
+        <div class="hr"></div>
+
+        <h2>${lang==="pt"?"Histologia":"Histology"}</h2>
+        <div class="list">${histRows || `<div class="small">${lang==="pt"?"Nenhum registro ainda.":"No records yet."}</div>`}</div>
+      </div>
+    </div>
+  `;
+}
+
+function viewAnalysis(){
+  const trts = state.design.treatments;
+  const meso = state.design.mesocosms;
+
+  const whatList = (lang==="pt")
+    ? `
+      <ul>
+        <li><b>Água:</b> OD, pH, CE, turbidez, temperatura e nutrientes → efeito de <span class="mono">tratamento × tempo</span>.</li>
+        <li><b>Comportamento:</b> construir escores (0–3) para ventilação/natação/reatividade → modelos por espécie.</li>
+        <li><b>Histologia:</b> índices por órgão (grau) → comparar tratamentos (com tempo).</li>
+        <li><b>Checagens:</b> outliers, autocorrelação temporal, normalidade dos resíduos.</li>
+      </ul>
+    `
+    : `
+      <ul>
+        <li><b>Water:</b> DO, pH, EC, turbidity, temperature, nutrients → <span class="mono">treatment × time</span>.</li>
+        <li><b>Behavior:</b> build scores (0–3) for ventilation/swimming/reactivity → species-specific models.</li>
+        <li><b>Histology:</b> organ-level indices (grade) → compare treatments (with time).</li>
+        <li><b>QC:</b> outliers, temporal autocorrelation, residual diagnostics.</li>
+      </ul>
+    `;
+
+  const rCode = `# ---- Load exported JSON ----
+library(jsonlite)
+library(dplyr)
+library(lme4)
+library(ggplot2)
+
+j <- fromJSON("ceua_project_console_export.json")
+
+water <- as.data.frame(j$data$water) %>%
+  mutate(
+    date = as.Date(date),
+    mesocosm = factor(mesocosm),
+    treatment = factor(treatment)
+  )
+
+# Example: DO mixed model (treatment * time index)
+water <- water %>%
+  arrange(date) %>%
+  group_by(mesocosm) %>%
+  mutate(day = as.integer(date - min(date)) )
+
+m_do <- lmer(od ~ treatment*day + (1|mesocosm), data=water)
+summary(m_do)
+
+# Plot
+ggplot(water, aes(day, od, color=treatment, group=mesocosm)) +
+  geom_line(alpha=.4) +
+  geom_point() +
+  theme_minimal()`;
+
+  return `
+    <div class="grid">
+      <div class="card">
+        <h2>${t("analysis.title")}</h2>
+        <p>${t("analysis.hint")}</p>
+
+        <div class="hr"></div>
+
+        <h2>${t("analysis.what")}</h2>
+        <div class="item">${whatList}</div>
+
+        <div class="hr"></div>
+
+        <h2>${t("analysis.code")}</h2>
+        <div class="codebox">${escapeHtml(rCode)}</div>
+
+        <div class="small" style="margin-top:10px">${t("analysis.note")}</div>
+      </div>
+
+      <div class="card">
+        <h2>${lang==="pt"?"Como eu faria como pesquisador de GEE":"How I’d run it as a GHG researcher"}</h2>
+        <p>${lang==="pt"
+          ? "Você quer rastreabilidade total: o JSON exportado vira o ‘caderno de campo digital’. Depois, o R gera figuras e tabelas publicáveis."
+          : "You want full traceability: the exported JSON becomes your digital lab notebook. Then R produces publishable figures/tables."}</p>
+
+        <div class="hr"></div>
+
+        <div class="item">
+          <div class="itemTitle">${lang==="pt"?"Padrão mínimo para publicação":"Minimum publication standard"}</div>
+          <div class="itemMeta">
+            ${lang==="pt"
+              ? "1) QA/QC; 2) modelos mistos; 3) gráficos por tratamento; 4) efeitos e IC; 5) suplementar com dados brutos."
+              : "1) QA/QC; 2) mixed models; 3) treatment plots; 4) effects & CI; 5) raw data as supplement."}
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="itemTitle">${lang==="pt"?"Sugestão forte":"Strong suggestion"}</div>
+          <div class="itemMeta">
+            ${lang==="pt"
+              ? "Padronize comportamento e histologia em escores numéricos (0–3). Isso melhora estatística e reprodutibilidade."
+              : "Standardize behavior and histology as numeric scores (0–3). This improves stats and reproducibility."}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+function viewConfig(){
+  return `
+    <div class="grid">
+      <div class="card">
+        <h2>${t("cfg.title")}</h2>
+        <p>${t("cfg.hint")}</p>
+
+        <div class="hr"></div>
+
+        <div class="twoCols">
+          <div class="item">
+            <div class="small">${t("cfg.fields.projectId")}</div>
+            <input id="c_projectId" type="text" value="${escapeAttr(state.meta.projectId)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.days")}</div>
+            <input id="c_days" type="number" min="1" step="1" value="${escapeAttr(state.meta.plannedDays)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.start")}</div>
+            <input id="c_start" type="date" value="${escapeAttr(state.meta.startDate)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.end")}</div>
+            <input id="c_end" type="date" value="${escapeAttr(state.meta.endDate)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.mesocosms")}</div>
+            <input id="c_meso" type="number" min="1" step="1" value="${escapeAttr(state.design.mesocosms)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.volume")}</div>
+            <input id="c_vol" type="number" min="1" step="1" value="${escapeAttr(state.design.volumeL)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.treatments")}</div>
+            <input id="c_trt" type="text" value="${escapeAttr(state.design.treatments.join(","))}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.replicates")}</div>
+            <input id="c_rep" type="number" min="1" step="1" value="${escapeAttr(state.design.replicates)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.fishA")}</div>
+            <input id="c_fishA" type="number" min="0" step="1" value="${escapeAttr(state.design.fishA)}"/>
+          </div>
+
+          <div class="item">
+            <div class="small">${t("cfg.fields.fishB")}</div>
+            <input id="c_fishB" type="number" min="0" step="1" value="${escapeAttr(state.design.fishB)}"/>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn primary" id="btnSaveCfg">💾 ${t("cfg.saveNow")}</button>
+          <button class="btn ghost" onclick="toast('OK')">✨</button>
+        </div>
+
+        <div class="small" style="margin-top:10px">
+          ${lang==="pt"
+            ? "Obs: mudar tratamentos/mesocosmos afeta menus e templates de registro de dados."
+            : "Note: changing treatments/mesocosms affects menus and data templates."}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>${lang==="pt"?"JSON (preview)":"JSON (preview)"}</h2>
+        <p class="small">${lang==="pt"?"Isso é o que vai para o arquivo exportado.":"This is what goes into the exported file."}</p>
+        <div class="hr"></div>
+        <div class="codebox">${escapeHtml(JSON.stringify(state, null, 2))}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================
+   Render
+========================= */
+function renderAll(){
+  // Header texts
+  document.getElementById("appTitle").textContent = t("appTitle");
+  document.getElementById("appSubtitle").textContent = t("appSubtitle");
+  document.getElementById("langLbl").textContent = (lang==="pt" ? "Idioma" : "Language");
+  document.getElementById("tExport").textContent = t("export");
+  document.getElementById("tImport").textContent = t("import");
+  document.getElementById("tReset").textContent = t("reset");
+  document.getElementById("footerNote").textContent = t("footer");
+
+  renderTabs();
+
+  const view = document.getElementById("view");
+  if(currentTab==="dash") view.innerHTML = viewDashboard();
+  if(currentTab==="meth") view.innerHTML = viewMethodology();
+  if(currentTab==="steps") view.innerHTML = viewSteps();
+  if(currentTab==="data") view.innerHTML = viewData();
+  if(currentTab==="analysis") view.innerHTML = viewAnalysis();
+  if(currentTab==="cfg") view.innerHTML = viewConfig();
+
+  // Bind per-view handlers
+  bindHandlers();
+}
+
+function bindHandlers(){
+  // Methodology save
+  const btnSaveMeth = document.getElementById("btnSaveMeth");
+  if(btnSaveMeth){
+    btnSaveMeth.onclick = ()=>{
+      state.text.project = document.getElementById("txtProject").value.trim();
+      state.text.question = document.getElementById("txtQuestion").value.trim();
+      state.text.goal = document.getElementById("txtGoal").value;
+      state.text.hypotheses = document.getElementById("txtHyp").value;
+      state.text.methodology = document.getElementById("txtMethod").value;
+      saveState();
+      renderAll();
+    };
+
+    // autosave as you type (light)
+    ["txtProject","txtQuestion","txtGoal","txtHyp","txtMethod"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el){
+        el.addEventListener("input", debounce(()=>{
+          if(currentTab!=="meth") return;
+          state.text.project = document.getElementById("txtProject").value.trim();
+          state.text.question = document.getElementById("txtQuestion").value.trim();
+          state.text.goal = document.getElementById("txtGoal").value;
+          state.text.hypotheses = document.getElementById("txtHyp").value;
+          state.text.methodology = document.getElementById("txtMethod").value;
+          localStorage.setItem(LS_KEY, JSON.stringify(state));
+        }, 250));
+      }
+    });
+  }
+
+  // Config save
+  const btnSaveCfg = document.getElementById("btnSaveCfg");
+  if(btnSaveCfg){
+    btnSaveCfg.onclick = ()=>{
+      state.meta.projectId = document.getElementById("c_projectId").value.trim() || state.meta.projectId;
+      state.meta.plannedDays = Number(document.getElementById("c_days").value) || 30;
+      state.meta.startDate = document.getElementById("c_start").value;
+      state.meta.endDate = document.getElementById("c_end").value;
+
+      state.design.mesocosms = Math.max(1, Number(document.getElementById("c_meso").value) || 9);
+      state.design.volumeL = Math.max(1, Number(document.getElementById("c_vol").value) || 1000);
+
+      const trtRaw = document.getElementById("c_trt").value;
+      const trt = trtRaw.split(",").map(x=>Number(String(x).trim())).filter(x=>isFinite(x));
+      state.design.treatments = trt.length ? trt : [0,2,5];
+
+      state.design.replicates = Math.max(1, Number(document.getElementById("c_rep").value) || 3);
+      state.design.fishA = Math.max(0, Number(document.getElementById("c_fishA").value) || 0);
+      state.design.fishB = Math.max(0, Number(document.getElementById("c_fishB").value) || 0);
+
+      saveState();
+      renderAll();
+    };
+  }
+}
+
+/* =========================
+   Actions
+========================= */
+function jump(tab){ currentTab = tab; renderAll(); }
+
+function addStep(){
+  const title = (document.getElementById("newStepTitle")?.value || "").trim();
+  const module = document.getElementById("newStepModule")?.value || "Planejamento";
+  const owner = (document.getElementById("newStepOwner")?.value || "").trim();
+  const due = document.getElementById("newStepDue")?.value || "";
+  const notes = document.getElementById("newStepNotes")?.value || "";
+  if(!title){ toast(lang==="pt"?"Escreva um título.":"Write a title."); return; }
+  state.steps.unshift({id:cryptoId(), module, title, done:false, due, owner, notes});
+  saveState();
+  renderAll();
+  currentTab = "steps";
+  toast(lang==="pt"?"Etapa criada!":"Step added!");
+}
+
+function toggleStep(id){
+  const s = state.steps.find(x=>x.id===id);
+  if(!s) return;
+  s.done = !s.done;
+  saveState();
+  renderAll();
+}
+
+function editStep(id){
+  const s = state.steps.find(x=>x.id===id);
+  if(!s) return;
+  const newTitle = prompt(lang==="pt"?"Editar título da etapa:":"Edit step title:", s.title);
+  if(newTitle===null) return;
+  s.title = newTitle.trim() || s.title;
+  const newOwner = prompt(lang==="pt"?"Responsável:":"Owner:", s.owner||"");
+  if(newOwner!==null) s.owner = newOwner.trim();
+  saveState();
+  renderAll();
+}
+
+function updateStepNotes(id, val){
+  const s = state.steps.find(x=>x.id===id);
+  if(!s) return;
+  s.notes = val;
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+}
+
+function delStep(id){
+  state.steps = state.steps.filter(x=>x.id!==id);
+  saveState();
+  renderAll();
+}
+
+function addWater(){
+  const r = {
+    date: val("w_date"),
+    mesocosm: Number(val("w_meso")),
+    treatment: Number(val("w_trt")),
+    od: num("w_od"),
+    ph: num("w_ph"),
+    ec: num("w_ec"),
+    temp: num("w_temp"),
+    turb: num("w_turb"),
+    nt: num("w_nt"),
+    pt: num("w_pt"),
+    notes: val("w_notes")
+  };
+  state.data.water.unshift(r);
+  saveState();
+  renderAll();
+  toast(lang==="pt"?"Registro de água salvo.":"Water record saved.");
+}
+
+function addBehavior(){
+  const r = {
+    date: val("b_date"),
+    mesocosm: Number(val("b_meso")),
+    treatment: Number(val("b_trt")),
+    species: val("b_species"),
+    ventilation: val("b_vent"),
+    swimming: val("b_swim"),
+    reactivity: val("b_react"),
+    stress: val("b_stress"),
+    notes: val("b_notes")
+  };
+  state.data.behavior.unshift(r);
+  saveState();
+  renderAll();
+  toast(lang==="pt"?"Registro de comportamento salvo.":"Behavior record saved.");
+}
+
+function addHist(){
+  const r = {
+    date: val("h_date"),
+    mesocosm: Number(val("h_meso")),
+    treatment: Number(val("h_trt")),
+    organ: val("h_organ"),
+    finding: val("h_find"),
+    grade: val("h_grade"),
+    notes: val("h_notes")
+  };
+  state.data.histology.unshift(r);
+  saveState();
+  renderAll();
+  toast(lang==="pt"?"Registro de histologia salvo.":"Histology record saved.");
+}
+
+function delData(type, idx){
+  if(!state.data[type]) return;
+  state.data[type].splice(idx,1);
+  saveState();
+  renderAll();
+}
+
+function copyMethod(){
+  const txt = [
+    state.text.project,
+    "",
+    (lang==="pt"?"Pergunta científica: ":"Scientific question: ") + state.text.question,
+    "",
+    (lang==="pt"?"Objetivo geral: ":"Overall goal: ") + state.text.goal,
+    "",
+    (lang==="pt"?"Hipóteses: ":"Hypotheses: ") + state.text.hypotheses,
+    "",
+    (lang==="pt"?"Metodologia: ":"Methodology: ") + state.text.methodology
+  ].join("\n");
+  navigator.clipboard?.writeText(txt).then(()=>toast("📋 OK"));
+}
+
+/* =========================
+   Export / Import / Reset
+========================= */
+function exportJSON(){
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    app: "ceua_project_console_v1",
+    lang,
+    ...state
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const name = `${state.meta.projectId || "ceua_project"}_export_${new Date().toISOString().slice(0,10)}.json`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast(t("toastExported"));
+}
+
+function importJSONFile(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const obj = JSON.parse(reader.result);
+      // Accept either full payload or raw state
+      const incoming = obj.meta ? obj : obj?.state ? obj.state : obj;
+      state = deepMerge(structuredClone(defaultState), incoming);
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      toast(t("toastImported"));
+      renderAll();
+    }catch(e){
+      toast(lang==="pt"?"JSON inválido.":"Invalid JSON.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAll(){
+  if(!confirm(t("confirmReset"))) return;
+  state = structuredClone(defaultState);
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  toast(t("toastReset"));
+  renderAll();
+}
+
+/* =========================
+   Utilities
+========================= */
+function val(id){ return (document.getElementById(id)?.value || "").trim(); }
+function num(id){
+  const v = (document.getElementById(id)?.value || "").trim();
+  if(v==="") return null;
+  const n = Number(v);
+  return isFinite(n) ? n : null;
+}
+function nz(x){ return (x===null || x===undefined || x==="") ? "—" : x; }
+
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function escapeAttr(s){ return escapeHtml(s).replaceAll("\n"," "); }
+
+function debounce(fn, ms){
+  let t;
+  return (...args)=>{
+    clearTimeout(t);
+    t = setTimeout(()=>fn(...args), ms);
+  };
+}
+
+/* =========================
+   Boot
+========================= */
+document.getElementById("langSel").addEventListener("change", (e)=>{
+  setLang(e.target.value);
+});
+
+document.getElementById("btnExport").addEventListener("click", exportJSON);
+document.getElementById("btnImport").addEventListener("click", ()=>document.getElementById("fileInput").click());
+document.getElementById("fileInput").addEventListener("change", (e)=>{
+  const f = e.target.files?.[0];
+  if(f) importJSONFile(f);
+  e.target.value = "";
+});
+document.getElementById("btnReset").addEventListener("click", resetAll);
+
+// initial lang
+const savedLang = localStorage.getItem(LS_KEY+"_lang");
+if(savedLang && (savedLang==="pt" || savedLang==="en")) lang = savedLang;
+document.getElementById("langSel").value = lang;
+
+setLang(lang);
+
+// persist lang
+const langPersist = debounce(()=>localStorage.setItem(LS_KEY+"_lang", lang), 50);
+document.getElementById("langSel").addEventListener("change", langPersist);
+
+// autosave timer (silent)
+setInterval(()=>{
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+}, 2000);
+
+</script>
+</body>
+</html>
